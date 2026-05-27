@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convoso x Bhanu Kumar · Proof of Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --ink:      #0d0c0b;
+  --ink2:     #1e1c1a;
+  --ink3:     #2e2b27;
+  --paper:    #f7f4ef;
+  --paper2:   #efeae2;
+  --paper3:   #e4ddd2;
+  --paper4:   #d6cec3;
+  --mid:      #7a7167;
+  --faint:    #b0a898;
+  --cvs:      #d84c1a;
+  --cvs-dim:  rgba(216,76,26,0.1);
+  --cvs-glow: rgba(216,76,26,0.2);
+  --cvs-t:    #e8734d;
+  --blue:     #1a4fd8;
+  --blue-dim: rgba(26,79,216,0.08);
+  --grn:      #1a7a4d;
+  --grn-dim:  rgba(26,122,77,0.08);
+  --amb:      #b85a00;
+  --amb-dim:  rgba(184,90,0,0.08);
+  --serif:    'Cormorant Garamond',Georgia,serif;
+  --sans:     'Outfit',system-ui,sans-serif;
+  --mono:     'JetBrains Mono',monospace;
+}
+
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* grain texture */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1000;opacity:1;
+}
+
+/* reading bar */
+#rbar{position:fixed;top:0;left:0;height:2px;background:var(--cvs);z-index:999;width:0;transition:width .08s linear}
+
+/* NAV */
+.nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(247,244,239,0.93);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--paper3);
+  padding:0 5vw;
+}
+.nav-i{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;gap:16px;
+}
+.nav-logo{
+  font-family:var(--mono);font-size:11px;
+  letter-spacing:0.05em;color:var(--ink);white-space:nowrap;flex-shrink:0;
+}
+.nav-logo .sep{color:var(--faint);margin:0 6px}
+.nav-logo .hi{color:var(--cvs)}
+.nav-links{display:flex;gap:2px;flex-wrap:nowrap}
+.np{
+  font-size:12px;font-weight:500;padding:6px 14px;
+  border-radius:4px;color:var(--mid);
+  text-decoration:none;transition:all .14s;white-space:nowrap;
+  border:1px solid transparent;
+}
+.np:hover{border-color:var(--paper3);color:var(--ink);background:var(--paper2)}
+.np.cta{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600}
+.np.cta:hover{background:var(--cvs);border-color:var(--cvs)}
+
+.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;flex-shrink:0}
+.hbg span{display:block;width:20px;height:1.5px;background:var(--ink);border-radius:2px;transition:transform .3s,opacity .3s}
+.hbg.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.hbg.open span:nth-child(2){opacity:0}
+.hbg.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-menu{display:none;position:fixed;inset:0;top:60px;background:var(--paper);z-index:190;flex-direction:column;padding:32px 5vw;border-top:1px solid var(--paper3)}
+.mob-menu.open{display:flex}
+.mob-menu a{display:block;font-size:22px;font-family:var(--serif);font-weight:600;color:var(--ink);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--paper3);letter-spacing:-0.01em}
+.mob-menu a.cta-m{color:var(--cvs);border-bottom:none}
+@media(max-width:740px){.nav-links{display:none}.hbg{display:flex}}
+
+/* LAYOUT */
+.wrap{max-width:1200px;margin:0 auto;padding:0 5vw}
+section{padding:88px 0;border-bottom:1px solid var(--paper3)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* HERO */
+.hero{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  min-height:92vh;
+  border-bottom:1px solid var(--paper3);
+}
+.hero-left{
+  background:var(--ink);
+  color:var(--paper);
+  padding:clamp(48px,7vw,96px) clamp(32px,5vw,72px);
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.hero-left::before{
+  content:'';position:absolute;
+  top:-100px;left:-80px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,var(--cvs-glow) 0%,transparent 65%);
+  pointer-events:none;
+}
+.h-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--cvs-t);
+  margin-bottom:48px;display:flex;align-items:center;gap:10px;
+}
+.h-eyebrow::before{content:'';width:28px;height:1px;background:var(--cvs)}
+.h-title{
+  font-family:var(--serif);
+  font-size:clamp(52px,7.5vw,106px);
+  line-height:0.88;
+  letter-spacing:-0.02em;
+  font-weight:700;
+  color:var(--paper);
+  margin-bottom:32px;
+}
+.h-title em{font-style:italic;color:var(--cvs-t)}
+.h-sub{
+  font-size:clamp(14px,1.5vw,16px);
+  color:rgba(247,244,239,0.6);
+  line-height:1.75;
+  max-width:480px;
+  font-weight:300;
+  margin-bottom:48px;
+}
+.h-sub strong{color:var(--paper);font-weight:500}
+.h-meta{
+  display:flex;gap:32px;padding-top:28px;
+  border-top:1px solid rgba(247,244,239,0.1);
+  flex-wrap:wrap;
+}
+.h-meta-item{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(247,244,239,0.4)}
+.h-meta-item strong{display:block;font-size:13px;letter-spacing:0;color:var(--paper);margin-bottom:3px;font-family:var(--sans);text-transform:none}
+
+.hero-right{
+  background:var(--paper2);
+  padding:clamp(48px,7vw,96px) clamp(32px,5vw,72px);
+  display:flex;flex-direction:column;
+  justify-content:space-between;
+}
+.h-toc-label{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:24px;
+}
+.toc-list{display:flex;flex-direction:column;gap:0}
+.toc-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;border-bottom:1px solid var(--paper3);
+  text-decoration:none;color:var(--ink3);
+  font-size:15px;font-weight:500;
+  transition:all .15s;
+}
+.toc-item:hover{color:var(--cvs);padding-left:6px}
+.toc-num{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.06em;
+  color:var(--faint);width:28px;flex-shrink:0;
+}
+.toc-item:hover .toc-num{color:var(--cvs)}
+.toc-arr{margin-left:auto;color:var(--faint);font-size:18px;opacity:0;transition:opacity .15s}
+.toc-item:hover .toc-arr{opacity:1}
+
+.h-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+.h-link{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px;border:1px solid var(--paper3);border-radius:4px;
+  color:var(--mid);font-size:13px;font-weight:500;
+  text-decoration:none;transition:all .14s;
+}
+.h-link:hover{border-color:var(--ink3);color:var(--ink);background:var(--paper)}
+.h-link svg{width:14px;height:14px;fill:currentColor}
+
+@media(max-width:860px){
+  .hero{grid-template-columns:1fr}
+  .hero-left{min-height:60vh}
+}
+
+/* SECTION LABELS */
+.sec-bar{display:flex;align-items:center;gap:14px;margin-bottom:40px}
+.sec-tag{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.13em;
+  text-transform:uppercase;color:var(--cvs);
+  background:var(--cvs-dim);border:1px solid rgba(216,76,26,0.2);
+  border-radius:3px;padding:4px 10px;white-space:nowrap;
+}
+.sec-title-small{
+  font-size:11px;font-weight:500;letter-spacing:0.13em;
+  text-transform:uppercase;color:var(--faint);
+}
+
+/* BIG HEADING */
+.bh{
+  font-family:var(--serif);
+  font-size:clamp(38px,5.5vw,68px);
+  line-height:1;letter-spacing:-0.02em;
+  font-weight:700;color:var(--ink);
+  margin-bottom:20px;
+}
+.bh em{font-style:italic;color:var(--cvs)}
+.lead{font-size:clamp(15px,1.6vw,18px);color:var(--mid);line-height:1.8;max-width:680px;margin-bottom:48px;font-weight:300}
+.lead strong{color:var(--ink);font-weight:500}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--paper3);border:1px solid var(--paper3)}
+.card{background:var(--paper);padding:28px 24px}
+.card-icon{font-size:22px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;letter-spacing:-0.01em}
+.card-body{font-size:14px;color:var(--mid);line-height:1.7}
+.card-body strong{color:var(--ink);font-weight:500}
+
+/* INTEL TABLE */
+.intel-wrap{border:1px solid var(--paper3);overflow:hidden}
+.intel-hdr{
+  background:var(--ink);color:var(--paper);
+  display:grid;grid-template-columns:160px 1fr 1fr 1fr;
+  font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:12px 20px;gap:16px;
+}
+.intel-row{
+  display:grid;grid-template-columns:160px 1fr 1fr 1fr;
+  padding:18px 20px;gap:16px;border-bottom:1px solid var(--paper3);
+  font-size:14px;transition:background .14s;
+  align-items:start;
+}
+.intel-row:last-child{border-bottom:none}
+.intel-row:hover{background:var(--paper2)}
+.intel-co{font-weight:600;color:var(--ink);font-size:13px}
+.intel-co small{display:block;font-weight:400;color:var(--faint);font-size:11px;font-family:var(--mono);margin-top:2px}
+.intel-cell{font-size:13px;color:var(--mid);line-height:1.6}
+.pill{
+  display:inline-block;padding:2px 8px;border-radius:2px;
+  font-size:11px;font-weight:600;font-family:var(--mono);
+}
+.pill-grn{background:var(--grn-dim);color:var(--grn);border:1px solid rgba(26,122,77,0.2)}
+.pill-red{background:var(--cvs-dim);color:var(--cvs);border:1px solid rgba(216,76,26,0.2)}
+.pill-amb{background:var(--amb-dim);color:var(--amb);border:1px solid rgba(184,90,0,0.2)}
+@media(max-width:720px){
+  .intel-hdr,.intel-row{grid-template-columns:1fr;padding:14px}
+  .intel-hdr{display:none}
+  .intel-row{border-left:3px solid var(--paper3)}
+  .intel-cell::before{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:3px}
+}
+
+/* MESSAGING AUDIT */
+.audit-shell{border:1px solid var(--paper3);overflow:hidden}
+.audit-tabs{display:flex;border-bottom:1px solid var(--paper3);overflow-x:auto}
+.atab{
+  padding:14px 20px;font-size:13px;font-weight:500;
+  color:var(--mid);cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;transition:all .15s;
+  border-right:1px solid var(--paper3);
+}
+.atab.on{color:var(--ink);border-bottom-color:var(--cvs);background:var(--paper2)}
+.atab:hover:not(.on){color:var(--ink3);background:var(--paper2)}
+.apanel{display:none;padding:28px 24px}
+.apanel.on{display:block}
+.ap-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px}
+.ap-col-label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.ap-copy{
+  font-size:14px;color:var(--mid);line-height:1.7;
+  padding:14px 16px;background:var(--paper2);border-left:3px solid var(--paper3);
+  font-style:italic;
+}
+.ap-fix{
+  font-size:14px;color:var(--ink);line-height:1.7;
+  padding:14px 16px;background:rgba(216,76,26,0.05);border-left:3px solid var(--cvs);
+}
+.ap-why{font-size:13px;color:var(--mid);margin-top:10px;padding:10px 14px;background:var(--paper2);border-radius:3px;line-height:1.65}
+@media(max-width:640px){.ap-row{grid-template-columns:1fr}}
+
+/* ICP */
+.icp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.icp-card{
+  padding:24px;border:1px solid var(--paper3);
+  border-top:3px solid var(--ink);transition:border-top-color .15s;
+}
+.icp-card:hover{border-top-color:var(--cvs)}
+.icp-seg{font-size:11px;font-family:var(--mono);letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.icp-name{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);margin-bottom:10px;letter-spacing:-0.01em;line-height:1.1}
+.icp-desc{font-size:13px;color:var(--mid);line-height:1.65;margin-bottom:14px}
+.icp-pains{list-style:none;display:flex;flex-direction:column;gap:5px}
+.icp-pains li{font-size:12px;color:var(--ink3);display:flex;gap:7px;align-items:flex-start}
+.icp-pains li::before{content:'→';color:var(--cvs);flex-shrink:0;font-size:11px;margin-top:2px}
+
+/* LAUNCH PLAN */
+.launch-track{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--paper3);margin-left:12px}
+.launch-item{padding:0 0 36px 32px;position:relative}
+.launch-item::before{
+  content:'';position:absolute;left:-7px;top:5px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--paper3);
+}
+.launch-item.active::before{background:var(--cvs);border-color:var(--cvs)}
+.launch-ph{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--cvs);margin-bottom:6px}
+.launch-name{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.01em}
+.launch-body{font-size:14px;color:var(--mid);line-height:1.7;max-width:620px}
+.launch-body ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.launch-body li{display:flex;gap:8px;font-size:13px}
+.launch-body li::before{content:'·';color:var(--cvs);font-weight:700;flex-shrink:0}
+
+/* DASHBOARD CONCEPT */
+.dash-concept{border:1px solid var(--paper3);overflow:hidden;background:var(--ink)}
+.dash-bar{background:var(--ink2);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.dash-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dash-title-bar{font-family:var(--mono);font-size:11px;color:rgba(247,244,239,0.3);margin-left:8px;flex:1;text-align:center}
+.dash-body{padding:24px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.dash-module{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:16px}
+.dash-mod-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(247,244,239,0.3);margin-bottom:12px}
+.dash-metric{color:var(--paper);font-family:var(--mono)}
+.bar-chart{display:flex;gap:6px;align-items:flex-end;height:60px;margin-top:8px}
+.bar-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar-fill{width:100%;border-radius:2px 2px 0 0;background:rgba(216,76,26,0.4)}
+.bar-fill.hi{background:var(--cvs)}
+.bar-label{font-family:var(--mono);font-size:8px;color:rgba(247,244,239,0.3);text-align:center}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:12px}
+.kpi-val{font-family:var(--mono);font-size:18px;color:var(--paper);letter-spacing:-0.02em}
+.kpi-lbl{font-family:var(--mono);font-size:9px;color:rgba(247,244,239,0.3);margin-top:4px;text-transform:uppercase;letter-spacing:0.1em}
+.kpi-delta{font-size:10px;color:#4ade80;margin-top:2px;font-family:var(--mono)}
+.comp-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-family:var(--mono);font-size:11px}
+.comp-row:last-child{border-bottom:none}
+.comp-name{color:rgba(247,244,239,0.5)}
+.comp-score{color:var(--cvs-t)}
+@media(max-width:600px){.dash-body{grid-template-columns:1fr}}
+
+/* WORK GRID */
+.work-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.work-card{
+  display:block;text-decoration:none;
+  border:1px solid var(--paper3);padding:24px;
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.work-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--cvs);transform:scaleX(0);transform-origin:left;
+  transition:transform .2s;
+}
+.work-card:hover{border-color:var(--ink3);background:var(--paper2)}
+.work-card:hover::after{transform:scaleX(1)}
+.wc-co{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--cvs);margin-bottom:10px}
+.wc-title{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.01em;line-height:1.15}
+.wc-desc{font-size:13px;color:var(--mid);line-height:1.65}
+.wc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
+.wc-tag{font-family:var(--mono);font-size:10px;padding:3px 8px;background:var(--paper3);color:var(--mid);border-radius:2px}
+.wc-link{display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:13px;font-weight:600;color:var(--ink);opacity:0;transition:opacity .15s}
+.work-card:hover .wc-link{opacity:1}
+
+/* OBSERVATION CALLOUT */
+.obs{
+  padding:28px 28px 28px 24px;
+  border-left:3px solid var(--cvs);
+  background:var(--cvs-dim);
+  margin:24px 0;
+}
+.obs-label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--cvs);margin-bottom:8px}
+.obs-text{font-size:15px;color:var(--ink);line-height:1.75}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+/* ASSUMPTION BOX */
+.assumption-box{
+  background:var(--paper2);border:1px solid var(--paper3);
+  padding:24px 28px;margin-top:48px;
+}
+.assumption-box h4{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.assumption-box ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.assumption-box li{font-size:13px;color:var(--mid);display:flex;gap:8px;line-height:1.6}
+.assumption-box li::before{content:'*';color:var(--amb);flex-shrink:0;font-weight:700}
+
+/* FOOTER */
+footer{
+  padding:48px 5vw;border-top:1px solid var(--paper3);
+  background:var(--ink);color:rgba(247,244,239,0.4);
+}
+.footer-i{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--mono);font-size:12px;color:rgba(247,244,239,0.5)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{font-family:var(--mono);font-size:11px;color:rgba(247,244,239,0.35);text-decoration:none;letter-spacing:0.06em;transition:color .14s}
+.footer-links a:hover{color:var(--cvs-t)}
+
+/* STAT STRIP */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--paper3);border:1px solid var(--paper3);margin-bottom:56px}
+.stat-box{background:var(--paper);padding:24px 20px}
+.stat-val{font-family:var(--serif);font-size:clamp(28px,4vw,42px);font-weight:700;color:var(--ink);letter-spacing:-0.02em;line-height:1}
+.stat-val span{color:var(--cvs)}
+.stat-lbl{font-size:12px;color:var(--mid);margin-top:6px;line-height:1.5}
+@media(max-width:640px){.stat-strip{grid-template-columns:repeat(2,1fr)}}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:10px}
+.cl-item{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink3);line-height:1.6}
+.cl-icon{width:20px;height:20px;border-radius:50%;background:var(--cvs);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.cl-icon svg{width:10px;height:10px;stroke:white;fill:none;stroke-width:2.5}
+
+/* INLINE LABEL */
+.label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:6px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);padding:10px 14px;border-bottom:1px solid var(--paper3)}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--paper3);color:var(--mid);vertical-align:top;line-height:1.6}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--paper2)}
+</style>
+</head>
+<body>
+
+<div id="rbar"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-i">
+    <div class="nav-logo">bhanu<span class="sep">/</span><span class="hi">convoso</span></div>
+    <div class="nav-links">
+      <a href="#intel" class="np">CI Program</a>
+      <a href="#messaging" class="np">Messaging</a>
+      <a href="#icp" class="np">ICP</a>
+      <a href="#launch" class="np">GTM</a>
+      <a href="#work" class="np">Work</a>
+      <a href="https://drive.google.com/file/d/1yjUi_xuCrZB15QrYXpXaPMbyy1C-StuM/view" target="_blank" class="np cta">Resume</a>
+    </div>
+    <button class="hbg" id="hbg" onclick="toggleMob()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mob-menu" id="mob">
+  <a href="#intel" onclick="toggleMob()">CI Program</a>
+  <a href="#messaging" onclick="toggleMob()">Messaging</a>
+  <a href="#icp" onclick="toggleMob()">ICP</a>
+  <a href="#launch" onclick="toggleMob()">GTM</a>
+  <a href="#work" onclick="toggleMob()">Work</a>
+  <a href="https://drive.google.com/file/d/1yjUi_xuCrZB15QrYXpXaPMbyy1C-StuM/view" target="_blank" class="cta-m">Resume</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div>
+      <div class="h-eyebrow">Product Marketing · Competitive Intelligence</div>
+      <h1 class="h-title">
+        Winning<br>
+        <em>the intel</em><br>
+        game
+      </h1>
+      <p class="h-sub">
+        Convoso sells into one of the most competitive corners of SaaS: outbound contact centers, where every vendor claims they dial faster, convert smarter, and stay more compliant than the other. Most PMM work here is reactive. This is a look at how to make it systematic.
+      </p>
+    </div>
+    <div class="h-meta">
+      <div class="h-meta-item"><strong>Bhanu Kumar</strong>Role</div>
+      <div class="h-meta-item"><strong>Convoso</strong>Company</div>
+      <div class="h-meta-item"><strong>B2B SaaS</strong>Sector</div>
+      <div class="h-meta-item"><strong>2025</strong>Year</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div>
+      <p class="h-toc-label">What's inside</p>
+      <div class="toc-list">
+        <a href="#intel" class="toc-item">
+          <span class="toc-num">01</span>
+          Competitive Intelligence Program Design
+          <span class="toc-arr">→</span>
+        </a>
+        <a href="#messaging" class="toc-item">
+          <span class="toc-num">02</span>
+          Messaging Audit: Voso.ai
+          <span class="toc-arr">→</span>
+        </a>
+        <a href="#icp" class="toc-item">
+          <span class="toc-num">03</span>
+          ICP Breakdown
+          <span class="toc-arr">→</span>
+        </a>
+        <a href="#launch" class="toc-item">
+          <span class="toc-num">04</span>
+          GTM Brief: IVA Expansion
+          <span class="toc-arr">→</span>
+        </a>
+        <a href="#dashboard" class="toc-item">
+          <span class="toc-num">05</span>
+          Dashboard Concept: PMM Analytics
+          <span class="toc-arr">→</span>
+        </a>
+        <a href="#work" class="toc-item" style="border-bottom:none">
+          <span class="toc-num">06</span>
+          Other Relevant Work
+          <span class="toc-arr">→</span>
+        </a>
+      </div>
+    </div>
+    <div class="h-links">
+      <a href="https://www.linkedin.com/in/bhanu-kumar" target="_blank" class="h-link">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://drive.google.com/file/d/1yjUi_xuCrZB15QrYXpXaPMbyy1C-StuM/view" target="_blank" class="h-link">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Resume
+      </a>
+      <a href="https://bhanuexcalibur.github.io/Stripe/" target="_blank" class="h-link">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Portfolio
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 01: CI PROGRAM -->
+<section id="intel">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">01</span>
+      <span class="sec-title-small">Competitive Intelligence Program</span>
+    </div>
+
+    <h2 class="bh reveal">The market <em>doesn't</em><br>explain itself</h2>
+    <p class="lead reveal">
+      The outbound contact center space has around a dozen credible players, all claiming the same things. Five9 says enterprise. Talkdesk says AI-first. NICE says omnichannel. And most CI programs at this layer just track the same G2 reviews and pricing pages. Here's how I'd build a program that actually moves sales conversations.
+    </p>
+
+    <div class="stat-strip reveal">
+      <div class="stat-box">
+        <div class="stat-val">$38<span>B</span></div>
+        <div class="stat-lbl">Cloud contact center market projected in 2025 (IDC estimate)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">12<span>+</span></div>
+        <div class="stat-lbl">Credible CCaaS competitors actively targeting Convoso's core segments</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">~70<span>%</span></div>
+        <div class="stat-lbl">Of organizations citing AI integration as essential in 2025</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">$90<span>/mo</span></div>
+        <div class="stat-lbl">Convoso per-user entry point, vs. broader market range of $65–$240</div>
+      </div>
+    </div>
+
+    <div class="obs reveal">
+      <div class="obs-label">The core problem</div>
+      <div class="obs-text">Convoso's primary differentiation, a purpose-built outbound dialer with compliance built in, is technically distinct. But "we're the fastest dialer" doesn't hold up in a category where every vendor posts the same efficiency claims. The CI program needs to surface where competitors are actually weak, not just where Convoso is strong.</div>
+    </div>
+
+    <h3 style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--ink);margin-bottom:24px;margin-top:48px;letter-spacing:-0.01em" class="reveal">Competitor landscape: what each player actually owns</h3>
+
+    <div class="intel-wrap reveal">
+      <div class="intel-hdr">
+        <div>Competitor</div>
+        <div>Core strength</div>
+        <div>Real gap vs. Convoso</div>
+        <div>CI priority</div>
+      </div>
+      <div class="intel-row">
+        <div class="intel-co">Five9<small>Enterprise CCaaS</small></div>
+        <div class="intel-cell">GenAI Studio, 120+ reports, Salesforce-native. Strong for enterprise inbound + hybrid orgs.</div>
+        <div class="intel-cell">Outbound dialing not their primary motion. TCPA compliance tooling less granular. Significantly higher TCO.</div>
+        <div class="intel-cell"><span class="pill pill-red">High</span> Frequently displacing Convoso in mid-market deals. Watch pricing movements and new AI announcements closely.</div>
+      </div>
+      <div class="intel-row">
+        <div class="intel-co">Talkdesk<small>AI-first CCaaS</small></div>
+        <div class="intel-cell">Modern UI, fast deployment, strong self-service features. Positions as AI-first to mid-market.</div>
+        <div class="intel-cell">Predictive dialer not their core. User reviews flag call quality and reliability issues. Less outbound-native compliance depth.</div>
+        <div class="intel-cell"><span class="pill pill-amb">Medium</span> Monitor AI messaging. Their "AI-first" framing could erode perception of Voso.ai uniqueness.</div>
+      </div>
+      <div class="intel-row">
+        <div class="intel-co">NICE CXone<small>Enterprise WFO</small></div>
+        <div class="intel-cell">Workforce optimization, quality management, analytics. Dominant in large enterprise service orgs.</div>
+        <div class="intel-cell">Not targeting Convoso's core B2C lead gen segment. Heavy implementation. Priced for large service floors.</div>
+        <div class="intel-cell"><span class="pill pill-grn">Low</span> Not a direct threat in core segments. Track if they push into outbound-specific verticals.</div>
+      </div>
+      <div class="intel-row">
+        <div class="intel-co">PhoneBurner<small>SMB dialer</small></div>
+        <div class="intel-cell">Simple power dialing. Affordable. Good UX for small outbound teams with basic needs.</div>
+        <div class="intel-cell">No predictive dialing at scale. Limited compliance tooling. Not built for 20+ agent operations.</div>
+        <div class="intel-cell"><span class="pill pill-amb">Medium</span> Often wins early-stage teams before they grow. Track to identify Convoso upgrade stories.</div>
+      </div>
+      <div class="intel-row">
+        <div class="intel-co">CloudTalk<small>SMB / mid-market VoIP</small></div>
+        <div class="intel-cell">Transparent pricing, modern UI, inbound + outbound hybrid. Roughly half the per-seat cost.</div>
+        <div class="intel-cell">Not purpose-built for outbound. Missing advanced predictive dialing and TCPA compliance depth at scale.</div>
+        <div class="intel-cell"><span class="pill pill-red">High</span> Actively creating Convoso comparison content. Price-sensitive prospects will see this first.</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:56px">
+      <div class="reveal">
+        <h3 style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);margin-bottom:20px;letter-spacing:-0.01em">How I'd run the program</h3>
+        <div class="checklist">
+          <div class="cl-item">
+            <div class="cl-icon"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+            <div><strong style="color:var(--ink)">AI-assisted signal collection:</strong> Automate tracking of competitor blog posts, pricing page changes, G2 review spikes, and job postings (hiring signals reveal product direction early).</div>
+          </div>
+          <div class="cl-item">
+            <div class="cl-icon"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+            <div><strong style="color:var(--ink)">Monthly competitor briefs:</strong> A one-pager per major competitor, focused on "what changed this month" not static comparisons. Delivered to sales and leadership in a format they'll actually read.</div>
+          </div>
+          <div class="cl-item">
+            <div class="cl-icon"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+            <div><strong style="color:var(--ink)">Win/loss tagging:</strong> Partner with sales ops to tag CRM deal outcomes with competitor reason codes. Then analyze patterns, not just collect data.</div>
+          </div>
+          <div class="cl-item">
+            <div class="cl-icon"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+            <div><strong style="color:var(--ink)">Battlecard ownership:</strong> Live Confluence battlecards per competitor, updated within 72 hours of major competitor announcements, not quarterly.</div>
+          </div>
+          <div class="cl-item">
+            <div class="cl-icon"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+            <div><strong style="color:var(--ink)">Quarterly intelligence review:</strong> A synthesized brief for product and marketing leadership: "here's what the market moved on this quarter and what it means for Convoso's roadmap and messaging."</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <h3 style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);margin-bottom:20px;letter-spacing:-0.01em">The battlecard structure I'd use</h3>
+        <div style="border:1px solid var(--paper3);overflow:hidden">
+          <div style="background:var(--ink);color:var(--paper);padding:14px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.1em">BATTLECARD TEMPLATE: v1</div>
+          <table class="tbl">
+            <tr><td>Why we win</td><td>3 bullet max. Specific, verifiable, not "better technology"</td></tr>
+            <tr><td>Why they win</td><td>Honest. If we don't know our weaknesses, sales can't handle objections</td></tr>
+            <tr><td>Key objection</td><td>The one thing buyers say when leaning toward competitor</td></tr>
+            <tr><td>Our answer</td><td>The response that works. Tested in real calls, not invented in a deck</td></tr>
+            <tr><td>Trap questions</td><td>Questions to ask in discovery that expose competitor gaps</td></tr>
+            <tr><td>Last updated</td><td>Visible date. If it's stale, it's worse than nothing</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 02: MESSAGING AUDIT -->
+<section id="messaging">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">02</span>
+      <span class="sec-title-small">Messaging Audit</span>
+    </div>
+
+    <h2 class="bh reveal">Voso.ai is a<br><em>bigger</em> story than<br>it's being told</h2>
+    <p class="lead reveal">
+      Convoso launched Voso.ai in August 2023, and it's genuinely differentiated: a conversational AI built specifically for outbound lead gen, not repurposed from a general-purpose chatbot. But the current messaging leans heavily on "automate your outreach," which is what every AI vendor says. Here's a tighter narrative.
+    </p>
+
+    <div class="audit-shell reveal">
+      <div class="audit-tabs" id="atabs">
+        <div class="atab on" onclick="switchTab('hero')">Homepage Hero</div>
+        <div class="atab" onclick="switchTab('iva')">IVA Product Page</div>
+        <div class="atab" onclick="switchTab('pitch')">Sales Pitch Angle</div>
+        <div class="atab" onclick="switchTab('category')">Category Positioning</div>
+      </div>
+
+      <div class="apanel on" id="ap-hero">
+        <div class="ap-row">
+          <div>
+            <div class="ap-col-label">Current messaging</div>
+            <div class="ap-copy">"More conversations, more conversions, more revenue."</div>
+            <div class="ap-why">Reads like every dialer company. It's a valid outcome statement but doesn't say anything about how or why Convoso achieves it differently than Five9 or anyone else.</div>
+          </div>
+          <div>
+            <div class="ap-col-label">Sharper alternative</div>
+            <div class="ap-fix">"The only platform built from the ground up for outbound, where compliance isn't a setting, it's the default."</div>
+            <div class="ap-why">This anchors on Convoso's actual structural advantage: compliance built into the workflow, not bolted on. Resonates with insurance, solar, and financial services buyers where TCPA risk is real and costly.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apanel" id="ap-iva">
+        <div class="ap-row">
+          <div>
+            <div class="ap-col-label">Current messaging</div>
+            <div class="ap-copy">"Voso.ai automates routine activities, freeing your agents to focus on high-impact interactions, improving efficiency, and driving higher conversion rates."</div>
+            <div class="ap-why">This is automation-as-a-feature messaging. Every AI tool says this. It doesn't explain the specific job Voso.ai does in an outbound call center context.</div>
+          </div>
+          <div>
+            <div class="ap-col-label">Sharper alternative</div>
+            <div class="ap-fix">"Your agents shouldn't waste time on voicemails, cold leads, and dead-end callbacks. Voso.ai handles all of it, so by the time a lead reaches a human, they're already qualified and ready to buy."</div>
+            <div class="ap-why">Speaks directly to the operational reality of an outbound call center manager. Names the actual pain (wasted agent time) and the mechanism (pre-qualification), not just the outcome.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apanel" id="ap-pitch">
+        <div class="ap-row">
+          <div>
+            <div class="ap-col-label">Current angle</div>
+            <div class="ap-copy">Leading with speed: "fastest dialer," "5,000 simultaneous dials," "connect in under 3 seconds."</div>
+            <div class="ap-why">Speed claims are hard to verify from the buyer's seat and easy for competitors to match in messaging. They attract price-sensitive buyers, not the ones building long-term platform relationships.</div>
+          </div>
+          <div>
+            <div class="ap-col-label">Recommended shift</div>
+            <div class="ap-fix">Lead with revenue certainty: "How much revenue is your team leaving in voicemail inboxes each month?" Then show the math: contact rate lift times average deal value times agent count.</div>
+            <div class="ap-why">Buyers in insurance and solar are running P&Ls. A $20 per seat cost difference doesn't move them. A clear answer to "how does this change my revenue this quarter" does.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apanel" id="ap-category">
+        <div class="ap-row">
+          <div>
+            <div class="ap-col-label">Current category framing</div>
+            <div class="ap-copy">"Contact Center Software" / "CCaaS" / "Outbound dialer"</div>
+            <div class="ap-why">Convoso sits in a crowded category label that includes enterprise inbound service centers, which is not Convoso's segment. Being compared to Genesys in a buyer's RFP is a positioning failure, not a sales failure.</div>
+          </div>
+          <div>
+            <div class="ap-col-label">Category to own</div>
+            <div class="ap-fix">"Revenue Contact Center" or "Outbound Revenue Platform"</div>
+            <div class="ap-why">Convoso already uses "revenue teams" in its copy. Formalizing this as a category creates a named frame competitors aren't occupying. It cleanly separates from service-focused CCaaS vendors and aligns with how buyers in lead gen and insurance already think about their function: as a revenue operation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="obs reveal" style="margin-top:40px">
+      <div class="obs-label">Messaging principle for this role</div>
+      <div class="obs-text">The CI and documentation work this role owns directly shapes messaging. If the battlecard says "we win on compliance depth," but the homepage still says "fastest dialer," the two contradict each other in the buyer's mind. Part of what I'd do in this role is close that loop, keeping internal positioning, competitor intel, and external copy aligned.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 03: ICP -->
+<section id="icp">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">03</span>
+      <span class="sec-title-small">ICP Breakdown</span>
+    </div>
+
+    <h2 class="bh reveal">Who actually buys<br><em>Convoso</em></h2>
+    <p class="lead reveal">
+      Convoso serves insurance, financial services, solar, home services, BPOs, and legal. That's a wide net, but the buyer psychology is consistent: they're running outbound-heavy revenue operations where agent productivity and contact rates are directly tied to quarterly numbers. Here's how I'd segment and prioritize.
+    </p>
+
+    <div class="icp-grid reveal">
+      <div class="icp-card">
+        <div class="icp-seg">Segment A · Core</div>
+        <div class="icp-name">The Insurance Call Center Director</div>
+        <div class="icp-desc">Running a 30 to 150 agent floor selling health, auto, or life policies. Their whole business is the phone. They live inside their CRM and dialer and their biggest nightmare is a TCPA lawsuit or a spoofed caller ID that tanks their contact rate overnight.</div>
+        <ul class="icp-pains">
+          <li>Contact rates declining due to spam labeling and flagging</li>
+          <li>TCPA compliance complexity increases every year (FCC updates, state mini-TCPAs)</li>
+          <li>Agent downtime between calls is visible and costly</li>
+          <li>Speed-to-lead is a competitive variable: first agent to call a fresh lead wins</li>
+        </ul>
+      </div>
+      <div class="icp-card">
+        <div class="icp-seg">Segment B · Growth</div>
+        <div class="icp-name">The Solar / Home Services VP Sales</div>
+        <div class="icp-desc">Running field-qualified appointments through a call center that pre-qualifies leads before sending to door-to-door teams. The economics are tight: a wasted appointment costs $200 or more. Pre-qualification quality is everything.</div>
+        <ul class="icp-pains">
+          <li>Poor lead pre-qualification wastes expensive field sales time</li>
+          <li>Appointment no-show rates hurt revenue forecasting</li>
+          <li>Need to scale outreach without proportional headcount increases</li>
+          <li>Voso.ai directly addresses the AI appointment-setting use case here</li>
+        </ul>
+      </div>
+      <div class="icp-card">
+        <div class="icp-seg">Segment C · Expansion</div>
+        <div class="icp-name">The BPO Operations Manager</div>
+        <div class="icp-desc">Running multi-client outbound campaigns across verticals. Needs a platform that can spin up new campaigns quickly, handle different compliance requirements per client, and report accurately to stakeholders who care about cost-per-contact and conversion.</div>
+        <ul class="icp-pains">
+          <li>Different compliance requirements per client campaign</li>
+          <li>Reporting needs vary by client and need to be exportable and clean</li>
+          <li>Cost per seat is sensitive: margins are thin and seat count is high</li>
+          <li>Fast onboarding matters: every day of setup delay is billable days lost</li>
+        </ul>
+      </div>
+      <div class="icp-card">
+        <div class="icp-seg">Segment D · Adjacent</div>
+        <div class="icp-name">The Legal Lead Gen Manager</div>
+        <div class="icp-desc">Running mass-tort or personal injury lead qualification at scale. Extremely regulated, high stakes per lead, and the consent-documentation requirements are some of the strictest in any vertical. Compliance is not a nice-to-have, it's the product.</div>
+        <ul class="icp-pains">
+          <li>Prior express written consent documentation is mandatory and complex</li>
+          <li>Lead quality varies wildly and bad leads are expensive</li>
+          <li>Agents need detailed scripting to stay compliant in calls</li>
+          <li>Audit trails and recording access must be reliable and accessible</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="obs reveal" style="margin-top:40px">
+      <div class="obs-label">PMM implication</div>
+      <div class="obs-text">These four segments share a platform but need different content, battlecards, and messaging. The CI program should track which competitors are most active in each vertical, not just overall. Five9 and Talkdesk are strongest against Segment C (BPO). PhoneBurner and CloudTalk are most threatening to Segments A and B early in the buying cycle. That distinction changes what the monthly competitor brief should say.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 04: GTM BRIEF -->
+<section id="launch">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">04</span>
+      <span class="sec-title-small">GTM Brief</span>
+    </div>
+
+    <h2 class="bh reveal">The IVA moment<br>is <em>now</em>, but the<br>story isn't ready</h2>
+    <p class="lead reveal">
+      Convoso launched Voso.ai in August 2023. The JD mentions a planned "relaunch" of an advanced IVA version with expanded capabilities. When that happens, the GTM approach matters as much as the product. Here's how I'd structure a launch that converts internal belief into external traction.
+    </p>
+
+    <div class="launch-track reveal">
+      <div class="launch-item active">
+        <div class="launch-ph">Phase 1 · Pre-launch (Weeks 1–4)</div>
+        <div class="launch-name">Get the intelligence first</div>
+        <div class="launch-body">
+          Before writing a word of external copy, the CI program needs to answer: how is the competition currently messaging their AI products? What are customers actually saying about IVA tools in reviews? Where are the complaints we can position against?
+          <ul>
+            <li>Audit competitor IVA / conversational AI messaging and identify the dominant claims</li>
+            <li>Pull G2 and Capterra reviews mentioning AI features across Five9, Talkdesk, and NICE</li>
+            <li>Interview 3 to 5 existing Voso.ai users: what was the actual "aha" moment?</li>
+            <li>Document the positioning gap Convoso can occupy that no one else is claiming</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launch-item active">
+        <div class="launch-ph">Phase 2 · Internal alignment (Weeks 3–6)</div>
+        <div class="launch-name">Build the narrative infrastructure</div>
+        <div class="launch-body">
+          Sales will be the first to see objections. If they don't have the right language, first impressions of the relaunch suffer. PMM's job here is to get sales confident before the launch goes external.
+          <ul>
+            <li>Write the internal positioning document: what we're saying, what we're not saying, why</li>
+            <li>Create updated Confluence battlecard: IVA-specific, focused on the relaunch capabilities</li>
+            <li>Run a 45-minute sales enablement session: cover positioning, objections, and trial-qualifying questions</li>
+            <li>Build a two-page "IVA conversation guide" for reps who need quick reference on calls</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launch-item">
+        <div class="launch-ph">Phase 3 · Market activation (Weeks 5–8)</div>
+        <div class="launch-name">Launch the content, not just the product</div>
+        <div class="launch-body">
+          The relaunch needs more than a press release. The real work is creating content that earns the claim "advanced IVA" with specifics buyers can verify, not just assert.
+          <ul>
+            <li>One-page launch brief for existing customers: what's new, what it means for their operation, how to activate it</li>
+            <li>A comparison landing page: "IVA vs. IVR" (this is a common search pattern and a credibility-building page)</li>
+            <li>Three vertical-specific use case pages: insurance appointment setting, solar lead pre-qual, BPO campaign scaling</li>
+            <li>Metrics tracking: set baseline before launch, report results at 30/60/90 days</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launch-item">
+        <div class="launch-ph">Phase 4 · Post-launch measurement (Week 9+)</div>
+        <div class="launch-name">Close the feedback loop</div>
+        <div class="launch-body">
+          Launch performance should feed back into the CI program and next messaging cycle. This is the part that most PMM launch plans skip.
+          <ul>
+            <li>Track: demo request rate, content engagement, IVA-related win rate vs. baseline</li>
+            <li>Interview sales reps at 30 days: which objections are they still hearing? What's the most common question?</li>
+            <li>Update battlecards and Confluence documentation based on real call learnings</li>
+            <li>Quarterly business review input: what did the launch move?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 05: DASHBOARD CONCEPT -->
+<section id="dashboard">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">05</span>
+      <span class="sec-title-small">PMM Analytics</span>
+    </div>
+
+    <h2 class="bh reveal">The dashboard<br>PMM <em>actually</em><br>needs</h2>
+    <p class="lead reveal">
+      The JD asks for someone who can partner with Product Operations to build dashboards tracking PMM performance. Most PMM dashboards track marketing metrics. What a competitive intelligence role really needs is a dashboard that connects market signals to revenue outcomes. Here's the structure I'd propose.
+    </p>
+
+    <div class="dash-concept reveal">
+      <div class="dash-bar">
+        <div class="dash-dot" style="background:#ff5f57"></div>
+        <div class="dash-dot" style="background:#ffbd2e"></div>
+        <div class="dash-dot" style="background:#28ca41"></div>
+        <div class="dash-title-bar">Convoso · PMM Intelligence Dashboard · Q3 2025 · Concept</div>
+      </div>
+      <div class="dash-body">
+        <div>
+          <div class="dash-module" style="margin-bottom:12px">
+            <div class="dash-mod-label">Launch Impact · IVA Relaunch (30-day)</div>
+            <div class="bar-chart">
+              <div class="bar-item"><div class="bar-fill" style="height:35px"></div><div class="bar-label">Wk 1</div></div>
+              <div class="bar-item"><div class="bar-fill" style="height:45px"></div><div class="bar-label">Wk 2</div></div>
+              <div class="bar-item"><div class="bar-fill hi" style="height:55px"></div><div class="bar-label">Wk 3</div></div>
+              <div class="bar-item"><div class="bar-fill hi" style="height:60px"></div><div class="bar-label">Wk 4</div></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:9px;color:rgba(247,244,239,0.3);margin-top:8px">Demo requests attributed to IVA-related content</div>
+          </div>
+          <div class="dash-module">
+            <div class="dash-mod-label">Competitor Activity Score · This Month</div>
+            <div class="comp-row"><span class="comp-name">Five9</span><span class="comp-score" style="color:#f87171">HIGH · Pricing update detected</span></div>
+            <div class="comp-row"><span class="comp-name">Talkdesk</span><span class="comp-score" style="color:#fbbf24">MED · New AI positioning page</span></div>
+            <div class="comp-row"><span class="comp-name">CloudTalk</span><span class="comp-score" style="color:#fbbf24">MED · Convoso comparison content</span></div>
+            <div class="comp-row"><span class="comp-name">PhoneBurner</span><span class="comp-score" style="color:#6ee7b7">LOW · No major changes</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="dash-module">
+            <div class="dash-mod-label">Win Rate by Competitor</div>
+            <div class="kpi-grid">
+              <div class="kpi-box">
+                <div class="kpi-val">67<span style="font-size:12px;color:var(--cvs-t)">%</span></div>
+                <div class="kpi-lbl">vs Five9</div>
+                <div class="kpi-delta">+4pp MoM</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-val">71<span style="font-size:12px;color:var(--cvs-t)">%</span></div>
+                <div class="kpi-lbl">vs Talkdesk</div>
+                <div class="kpi-delta">+2pp MoM</div>
+              </div>
+            </div>
+          </div>
+          <div class="dash-module">
+            <div class="dash-mod-label">Battlecard Freshness</div>
+            <div class="comp-row"><span class="comp-name">Five9</span><span class="comp-score" style="color:#6ee7b7">Updated 5d ago</span></div>
+            <div class="comp-row"><span class="comp-name">Talkdesk</span><span class="comp-score" style="color:#fbbf24">Updated 22d ago</span></div>
+            <div class="comp-row"><span class="comp-name">CloudTalk</span><span class="comp-score" style="color:#f87171">Stale · 61d ago</span></div>
+          </div>
+          <div class="dash-module">
+            <div class="dash-mod-label">Confluence Portal Health</div>
+            <div class="kpi-box" style="margin-top:4px">
+              <div class="kpi-val">84<span style="font-size:12px;color:var(--cvs-t)">%</span></div>
+              <div class="kpi-lbl">Docs reviewed in last 30 days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="obs reveal" style="margin-top:32px">
+      <div class="obs-label">Why this matters</div>
+      <div class="obs-text">Most PMM dashboards report activity (pieces of content published, page views). This tracks outcomes: are battlecards fresh enough to be useful? Is the IVA relaunch actually driving demos? Are we winning more when we go up against Five9 this quarter compared to last? That's the reporting that changes product and marketing decisions.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 06: WORK -->
+<section id="work" style="border-bottom:none">
+  <div class="wrap">
+
+    <div class="sec-bar reveal">
+      <span class="sec-tag">06</span>
+      <span class="sec-title-small">Other Relevant Work</span>
+    </div>
+
+    <h2 class="bh reveal">Work worth<br><em>looking at</em></h2>
+    <p class="lead reveal">
+      Selected projects across competitive positioning, messaging, GTM, and product marketing.
+    </p>
+
+    <div class="work-grid reveal">
+      <a href="https://bhanuexcalibur.github.io/Deltek/" target="_blank" class="work-card">
+        <div class="wc-co">Deltek</div>
+        <div class="wc-title">B2B SaaS GTM & Competitive Strategy</div>
+        <div class="wc-desc">Product marketing work for a project-based ERP platform targeting government contractors. Positioning, messaging audit, and competitive intelligence framework.</div>
+        <div class="wc-tags"><span class="wc-tag">GTM</span><span class="wc-tag">Competitive</span><span class="wc-tag">B2B SaaS</span></div>
+        <div class="wc-link">View work →</div>
+      </a>
+      <a href="https://bhanuexcalibur.github.io/Supabase/" target="_blank" class="work-card">
+        <div class="wc-co">Supabase</div>
+        <div class="wc-title">Developer Platform GTM & Positioning</div>
+        <div class="wc-desc">Product marketing strategy for an open-source developer platform. Category narrative, developer persona work, and messaging for a fast-growing infra-first product.</div>
+        <div class="wc-tags"><span class="wc-tag">Developer GTM</span><span class="wc-tag">Positioning</span><span class="wc-tag">Open Source</span></div>
+        <div class="wc-link">View work →</div>
+      </a>
+      <a href="https://bhanuexcalibur.github.io/Veeva/" target="_blank" class="work-card">
+        <div class="wc-co">Veeva Systems</div>
+        <div class="wc-title">Vertical SaaS PMM & Launch Strategy</div>
+        <div class="wc-desc">Product marketing strategy for a life sciences SaaS platform. GTM framework, competitive positioning, and content strategy across a highly regulated vertical.</div>
+        <div class="wc-tags"><span class="wc-tag">GTM</span><span class="wc-tag">Vertical SaaS</span><span class="wc-tag">Regulated</span></div>
+        <div class="wc-link">View work →</div>
+      </a>
+      <a href="https://bhanuexcalibur.github.io/CashFree/" target="_blank" class="work-card">
+        <div class="wc-co">Cashfree Payments</div>
+        <div class="wc-title">Fintech Platform Messaging & Audit</div>
+        <div class="wc-desc">Messaging audit, competitive positioning, and GTM thinking for a B2B payments infrastructure platform targeting enterprise and mid-market fintech buyers.</div>
+        <div class="wc-tags"><span class="wc-tag">Messaging Audit</span><span class="wc-tag">Fintech</span><span class="wc-tag">B2B GTM</span></div>
+        <div class="wc-link">View work →</div>
+      </a>
+    </div>
+
+    <div class="assumption-box reveal">
+      <h4>Verification & Assumptions</h4>
+      <ul>
+        <li>Convoso product names (Voso.ai, Predictive Dialer, Click-to-Comply, StateTracker, CallCatalyst) verified from official Convoso website.</li>
+        <li>Voso.ai launch date (August 1, 2023) and founding year (2006) verified from official Convoso press release.</li>
+        <li>Market size figure (~$38B CCaaS 2025) sourced from industry analyst estimates reported in public sources. Labeled as estimate.</li>
+        <li>Win rate percentages in the dashboard concept are illustrative hypotheticals, not real Convoso data. Clearly labeled as a concept.</li>
+        <li>Competitor profiles (Five9, Talkdesk, CloudTalk, PhoneBurner, NICE) based on publicly available pricing, product pages, and verified user reviews.</li>
+        <li>Price estimate of ~$90/user/month for Convoso sourced from Capterra and multiple third-party sources. Convoso does not publish pricing publicly.</li>
+        <li>The "IVA relaunch" reference is based on the JD's explicit mention of relaunching an advanced IVA version. No specific product details were invented.</li>
+        <li>Industry verticals (insurance, solar, BPO, legal, home services) verified from official Convoso website.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-i">
+    <div class="footer-logo">bhanu kumar · proof of work · convoso</div>
+    <div class="footer-links">
+      <a href="https://www.linkedin.com/in/bhanu-kumar" target="_blank">LinkedIn</a>
+      <a href="https://drive.google.com/file/d/1yjUi_xuCrZB15QrYXpXaPMbyy1C-StuM/view" target="_blank">Resume</a>
+      <a href="https://bhanuexcalibur.github.io/Deltek/" target="_blank">Deltek PoW</a>
+      <a href="https://bhanuexcalibur.github.io/Veeva/" target="_blank">Veeva PoW</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Reading bar
+const rbar = document.getElementById('rbar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+  rbar.style.width = pct + '%';
+});
+
+// Hamburger
+function toggleMob() {
+  document.getElementById('hbg').classList.toggle('open');
+  document.getElementById('mob').classList.toggle('open');
+}
+
+// Tabs
+function switchTab(id) {
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.apanel').forEach(p => p.classList.remove('on'));
+  document.getElementById('ap-' + id).classList.add('on');
+  event.target.classList.add('on');
+}
+
+// Reveal on scroll
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
